@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Kurdistan | Welatê Rojê</title>
+
+    <!-- Fonts: Cinzel for History/Titles, Inter for Body -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;800&family=Inter:wght@300;400;600&family=Noto+Sans+Arabic:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- Tailwind config must be set BEFORE the CDN script to reliably apply custom theme -->
+    <script>
+        tailwind = window.tailwind || {};
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'kurd-red': '#E30022',
+                        'kurd-green': '#278E43',
+                        'kurd-yellow': '#FECB00',
+                        'bg-paper': '#f9f8f4',
+                        'text-dark': '#1a1a1a',
+                        'stone-gray': '#8c8c8c'
+                    },
+                    fontFamily: {
+                        'serif': ['Cinzel', 'serif'],
+                        'sans': ['Inter', 'sans-serif'],
+                        'arabic': ['Noto Sans Arabic', 'sans-serif']
+                    },
+                    backgroundImage: {
+                        'pattern-kilim': "url('data:image/svg+xml,%3Csvg width=\"40\" height=\"40\" viewBox=\"0 0 40 40\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cpath d=\"M20 20l10-10L20 0 10 10z\" fill=\"%23d4a373\" fill-opacity=\"0.1\"/%3E%3C/svg%3E')"
+                    }
+                }
+            }
+        }
+    </script>
+
+    <!-- Tailwind CSS (Styling) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Chart.js (Data Visualization) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f9f8f4; }
+        ::-webkit-scrollbar-thumb { background: #FECB00; border-radius: 4px; }
+
+        body {
+            background-color: #f9f8f4;
+            overflow-x: hidden;
+        }
+
+        /* Typography & Bilingual Styling */
+        .bilingual-title span {
+            display: block;
+        }
+        .kurmanji {
+            font-family: 'Cinzel', serif;
+            color: #d4a373; /* Muted Gold */
+            font-style: italic;
+            font-size: 0.6em;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.2rem;
+        }
+
+        /* Organic Image Masks - Modified for "Mountain/Stone" feel */
+        .mask-mountain-1 {
+            clip-path: polygon(10% 0, 100% 0, 100% 85%, 85% 100%, 0 100%, 0 15%);
+            transition: clip-path 1s ease;
+        }
+        .mask-mountain-2 {
+            clip-path: polygon(0 0, 85% 0, 100% 15%, 100% 100%, 15% 100%, 0 85%);
+        }
+        .mask-organic {
+            border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+            transition: border-radius 2s ease;
+        }
+        .mask-organic:hover {
+            border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%;
+        }
+
+        /* Animations */
+        .reveal {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 1.2s cubic-bezier(0.2, 1, 0.3, 1);
+        }
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .reveal-left {
+            opacity: 0;
+            transform: translateX(-50px);
+            transition: all 1.2s cubic-bezier(0.2, 1, 0.3, 1);
+        }
+        .reveal-left.active { opacity: 1; transform: translateX(0); }
+
+        .reveal-right {
+            opacity: 0;
+            transform: translateX(50px);
+            transition: all 1.2s cubic-bezier(0.2, 1, 0.3, 1);
+        }
+        .reveal-right.active { opacity: 1; transform: translateX(0); }
+
+        /* Timeline Styling */
+        .timeline-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 2px;
+            background: #e5e7eb;
+            transform: translateX(-50%);
+        }
+
+        /* Sun Symbol Animation */
+        .sun-spin {
+            animation: spin 20s linear infinite;
+        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+
+        /* Loader */
+        #loader {
+            position: fixed;
+            inset: 0;
+            background: #f9f8f4;
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease;
+        }
+
+        /* --- Added styles for Nawroz countdown & politics section (kept subtle + matching) --- */
+        .countdown-digit {
+            width: 86px;
+            height: 86px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 12px;
+            background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(250,246,238,0.9));
+            box-shadow: 0 6px 18px rgba(10,10,10,0.06);
+            font-weight: 700;
+        }
+        .countdown-label {
+            font-size: 0.65rem;
+            color: #6b6b6b;
+            margin-top: 6px;
+            letter-spacing: 0.06em;
+        }
+        @media (max-width: 640px) {
+            .countdown-digit { width: 64px; height: 64px; font-size: 1rem; }
+        }
+
+    </style>
+</head>
+<body class="text-text-dark font-sans selection:bg-kurd-yellow selection:text-black">
+
+    <!-- Loading Screen -->
+    <div id="loader">
+        <div class="text-center">
+            <h1 class="font-serif text-2xl tracking-widest animate-pulse">KURDISTAN</h1>
+            <p class="text-xs text-stone-500 mt-2">WELATÊ ROJÊ</p>
+        </div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="fixed top-0 w-full z-50 transition-all duration-300 px-6 py-4 flex justify-between items-center backdrop-blur-md bg-bg-paper/80 border-b border-stone-200/50" id="navbar">
+        <div class="flex items-center gap-2">
+            <!-- Sun Icon (SVG) -->
+            <svg class="w-8 h-8 text-kurd-yellow sun-spin" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M12 2.25a.75.75 0 01.75.75v2.25a.75.75 0 01-1.5 0V3a.75.75 0 01.75-.75zM7.5 12a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM18.894 6.166a.75.75 0 00-1.06-1.06l-1.591 1.59a.75.75 0 101.06 1.061l1.591-1.59zM21.75 12a.75.75 0 01-.75.75h-2.25a.75.75 0 010-1.5H21a.75.75 0 01.75.75zM17.834 18.894a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 10-1.061 1.06l1.59 1.591zM12 18a.75.75 0 01.75.75V21a.75.75 0 01-1.5 0v-2.25A.75.75 0 0112 18zM7.758 17.303a.75.75 0 00-1.061-1.06l-1.591 1.59a.75.75 0 001.06 1.061l1.591-1.59zM6 12a.75.75 0 01-.75.75H3a.75.75 0 010-1.5h2.25A.75.75 0 016 12zM6.697 7.757a.75.75 0 001.06-1.06l-1.59-1.591a.75.75 0 00-1.061 1.06l1.59 1.591z" />
+            </svg>
+            <span class="font-serif font-bold text-xl tracking-widest">KURDISTAN</span>
+        </div>
+
+        <!-- Desktop Links -->
+        <div class="hidden md:flex gap-8 text-xs font-bold tracking-[0.2em] uppercase">
+            <a href="#history" class="hover:text-kurd-red transition">Dîrok</a>
+            <a href="#culture" class="hover:text-kurd-green transition">Çand</a>
+            <a href="#geography" class="hover:text-kurd-yellow transition">Cografya</a>
+            <a href="#modern" class="hover:text-stone-500 transition">Jiyan</a>
+        </div>
+
+        <!-- Mobile menu button -->
+        <div class="md:hidden flex items-center">
+            <button id="menuBtn" aria-expanded="false" aria-controls="mobileMenu" class="border border-text-dark px-4 py-1 rounded-full text-xs uppercase hover:bg-text-dark hover:text-white transition">
+                Menu
+            </button>
+        </div>
+
+        <!-- Mobile menu (hidden by default) -->
+        <div id="mobileMenu" class="absolute top-full right-4 mt-2 w-56 bg-bg-paper rounded-md shadow-lg py-4 px-4 hidden md:hidden">
+            <nav class="flex flex-col gap-3 text-sm font-bold uppercase">
+                <a href="#history" class="hover:text-kurd-red transition" onclick="toggleMobileMenu(false)">Dîrok</a>
+                <a href="#culture" class="hover:text-kurd-green transition" onclick="toggleMobileMenu(false)">Çand</a>
+                <a href="#geography" class="hover:text-kurd-yellow transition" onclick="toggleMobileMenu(false)">Cografya</a>
+                <a href="#modern" class="hover:text-stone-500 transition" onclick="toggleMobileMenu(false)">Jiyan</a>
+            </nav>
+        </div>
+    </nav>
+
+    <!-- HERO SECTION -->
+    <header class="relative h-screen w-full overflow-hidden flex items-center justify-center">
+        <!-- Parallax Background Image -->
+        <div class="absolute inset-0 z-0">
+            <!-- Replaced hero with Wikimedia Commons image (Erbil Citadel) for stability. Source: Wikimedia Commons. -->
+            <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Erbil%20Citadel%202024.jpg" 
+                 alt="Erbil Citadel" 
+                 class="w-full h-full object-cover opacity-90 scale-110" 
+                 style="transform-origin: bottom;" id="hero-img">
+            <div class="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[#f9f8f4]"></div>
+        </div>
+
+        <div class="relative z-10 text-center px-4 mix-blend-difference text-white reveal active">
+            <p class="kurmanji text-kurd-yellow text-lg mb-4 tracking-[0.3em] font-bold">WELATÊ ROJÊ</p>
+            <h1 class="font-serif text-6xl md:text-9xl font-bold tracking-tighter leading-none mb-6">The Land <br> of the Sun</h1>
+            <p class="max-w-md mx-auto font-medium text-sm md:text-base opacity-100 leading-relaxed">
+                A journey through the cradle of civilization, where the Zagros mountains whisper ancient stories and the culture burns as bright as the Newroz fire.
+            </p>
+        </div>
+    </header>
+
+    <!-- INTRODUCTION -->
+    <section class="py-24 px-6 md:px-12 max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+        <div class="reveal-left">
+            <h2 class="bilingual-title font-serif text-4xl md:text-5xl mb-8">
+                <span class="kurmanji">PÊŞEKÎ</span>
+                Between Empires & Mountains
+            </h2>
+            <p class="text-stone-600 mb-6 leading-relaxed">
+                Kurdistan is not just a geographical region; it is a cultural tapestry woven over millennia. Spanning across the Zagros mountain range, it connects the Middle East, serving as a bridge between civilizations.
+            </p>
+            <p class="text-stone-600 mb-8 leading-relaxed">
+                Known for its hospitality (*mêvanperwerî*), the region boasts a diverse heritage of language, religion, and art that has survived against all odds.
+            </p>
+            <div class="flex gap-4">
+                <div class="text-center">
+                    <span class="block font-serif text-3xl font-bold text-kurd-red">45M+</span>
+                    <span class="text-xs uppercase tracking-widest text-stone-500">People</span>
+                </div>
+                <div class="w-px bg-stone-300"></div>
+                <div class="text-center">
+                    <span class="block font-serif text-3xl font-bold text-kurd-green">4000+</span>
+                    <span class="text-xs uppercase tracking-widest text-stone-500">Years History</span>
+                </div>
+            </div>
+        </div>
+        <div class="relative h-[500px] reveal-right group">
+            <div class="absolute inset-0 bg-kurd-yellow/10 rounded-full blur-3xl transform group-hover:scale-110 transition duration-1000"></div>
+            <!-- Replaced with a stable Citadel image (Wikimedia) -->
+            <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Arbil_Citadel.jpg" 
+                 class="w-full h-full object-cover mask-mountain-1 shadow-2xl grayscale group-hover:grayscale-0 transition duration-700" 
+                 alt="Erbil Citadel">
+            <div class="absolute bottom-8 left-8 bg-white/90 backdrop-blur p-4 max-w-xs shadow-lg rounded-sm">
+                <p class="font-serif font-bold text-sm">The Citadel of Erbil</p>
+                <p class="text-xs text-stone-500">Continuously inhabited for thousands of years.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- HISTORY TIMELINE -->
+    <section id="history" class="py-32 bg-stone-100 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-full opacity-5 bg-[url('https://www.transparenttextures.com/patterns/arabesque.png')]"></div>
+        
+        <div class="max-w-4xl mx-auto px-6 relative z-10">
+            <div class="text-center mb-20 reveal">
+                <h2 class="bilingual-title font-serif text-4xl">
+                    <span class="kurmanji">DÎROK Û ŞARISTANIYET</span>
+                    Echoes of the Past
+                </h2>
+            </div>
+
+            <div class="relative">
+                <div class="timeline-line hidden md:block"></div>
+
+                <!-- Timeline Item 1 -->
+                <div class="grid md:grid-cols-2 gap-8 mb-24 items-center reveal">
+                    <div class="md:text-right">
+                        <span class="text-kurd-red font-bold tracking-widest text-sm">C. 10,000 BC</span>
+                        <h3 class="font-serif text-2xl mt-2 mb-4">The Dawn of Agriculture</h3>
+                        <p class="text-sm text-stone-600">The region of Kurdistan is part of the Fertile Crescent. Archaeological sites like *Shanidar Cave* provide crucial evidence of Neanderthal culture and early human settlements.</p>
+                    </div>
+                    <div class="relative">
+                        <div class="absolute top-1/2 -left-[21px] w-4 h-4 bg-kurd-red rounded-full border-4 border-white hidden md:block"></div>
+                        <!-- timeline image replaced (public image) -->
+                        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/20190505%20110752.Erbil_Citadel.Erbil.Kurdistan.jpg" class="w-full h-48 object-cover rounded-lg shadow-md grayscale hover:grayscale-0 transition" alt="Archaeological site / citadel">
+                    </div>
+                </div>
+
+                <!-- Timeline Item 2 -->
+                <div class="grid md:grid-cols-2 gap-8 mb-24 items-center reveal">
+                    <div class="md:col-start-2">
+                        <span class="text-kurd-green font-bold tracking-widest text-sm">700 BC</span>
+                        <h3 class="font-serif text-2xl mt-2 mb-4">The Median Empire</h3>
+                        <p class="text-sm text-stone-600">Ancestors of the Kurds, the Medes, established a vast empire. This era is often cited in Kurdish nationalism as the golden age of sovereignty.</p>
+                    </div>
+                    <div class="md:col-start-1 md:row-start-1 relative">
+                        <div class="absolute top-1/2 -right-[21px] w-4 h-4 bg-kurd-green rounded-full border-4 border-white hidden md:block"></div>
+                        <div class="bg-stone-200 h-48 rounded-lg flex items-center justify-center p-8">
+                            <p class="font-serif italic text-center text-stone-500">"The mountains are our only friends."</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Timeline Item 3 -->
+                <div class="grid md:grid-cols-2 gap-8 items-center reveal">
+                    <div class="md:text-right">
+                        <span class="text-kurd-yellow font-bold tracking-widest text-sm">MODERN ERA</span>
+                        <h3 class="font-serif text-2xl mt-2 mb-4">Resilience & Autonomy</h3>
+                        <p class="text-sm text-stone-600">Through the 20th and 21st centuries, Kurds have fought for recognition. Today, the Kurdistan Region of Iraq stands as a beacon of development and relative stability.</p>
+                    </div>
+                    <div class="relative">
+                        <div class="absolute top-1/2 -left-[21px] w-4 h-4 bg-kurd-yellow rounded-full border-4 border-white hidden md:block"></div>
+                        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Erbil_Citadel_01.jpg" class="w-full h-48 object-cover rounded-lg shadow-md grayscale hover:grayscale-0 transition" alt="Erbil Citadel aerial">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- GEOGRAPHY & NATURE -->
+    <section id="geography" class="py-24 bg-bg-paper">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid md:grid-cols-12 gap-12">
+                <div class="md:col-span-4 reveal">
+                    <h2 class="bilingual-title font-serif text-4xl mb-6">
+                        <span class="kurmanji">COGRAFYA Û XWEZAYÊ</span>
+                        Peaks & Valleys
+                    </h2>
+                    <p class="text-stone-600 mb-6">
+                        Characterized by the rugged Zagros Mountains, Kurdistan experiences four distinct seasons. From the snow-capped peaks of Halgurd to the fertile plains of Mesopotamia.
+                    </p>
+                    <ul class="space-y-4 font-serif text-sm">
+                        <li class="flex items-center gap-3">
+                            <span class="w-2 h-2 bg-kurd-green rounded-full"></span> 
+                            Mt. Ararat (Agirî) - 5,137m
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <span class="w-2 h-2 bg-kurd-green rounded-full"></span> 
+                            Lake Van - Largest Soda Lake
+                        </li>
+                        <li class="flex items-center gap-3">
+                            <span class="w-2 h-2 bg-kurd-green rounded-full"></span> 
+                            Bekhal Waterfalls
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="md:col-span-8 grid grid-cols-2 gap-4">
+                    <div class="space-y-4 mt-12">
+                        <!-- Zagros mountains public image -->
+                        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Zagros_iraq.png" class="mask-mountain-1 w-full h-64 object-cover reveal transition hover:scale-105 duration-700" alt="Zagros mountains">
+                        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Bekhal_Waterfall_01.jpg" class="mask-mountain-2 w-full h-48 object-cover reveal transition hover:scale-105 duration-700" alt="Bekhal Waterfall">
+                    </div>
+                    <div class="space-y-4">
+                        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Zagros_mountains.jpg" class="mask-mountain-2 w-full h-48 object-cover reveal transition hover:scale-105 duration-700" alt="Zagros slopes">
+                        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Erbil_Citadel_01.jpg" class="mask-mountain-1 w-full h-64 object-cover reveal transition hover:scale-105 duration-700" alt="Erbil Citadel">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====== NEW: LANGUAGE & DIALECTS (MATCHING INFOGRAPH) ====== -->
+    <section id="language" class="py-24 bg-white overflow-hidden">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid md:grid-cols-2 gap-16 items-center">
+                <!-- Chart Side -->
+                <div class="reveal-left relative flex justify-center items-center">
+                    <div class="w-full max-w-md aspect-square relative">
+                        <canvas id="languageChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Text Side -->
+                <div class="reveal-right">
+                    <p class="kurmanji text-kurd-yellow text-lg mb-2 tracking-[0.2em]">ZIMANÊ KURDÎ</p>
+                    <h2 class="font-serif text-4xl md:text-5xl mb-6 text-text-dark">A Rich Linguistic Tapestry</h2>
+                    <p class="text-stone-600 mb-8 leading-relaxed">
+                        The Kurdish language belongs to the Indo-European family. It is divided into several main dialects, each with its own literary history and nuance, forming a bridge between the Persian and Arabic scripts.
+                    </p>
+
+                    <div class="space-y-4">
+                        <!-- Kurmanji -->
+                        <div class="flex flex-col gap-1 p-4 bg-stone-50 rounded-lg border-l-4 border-kurd-yellow hover:shadow-md transition">
+                            <h4 class="font-bold text-sm uppercase">Kurmanji (Northern)</h4>
+                            <p class="text-xs text-stone-500">Most widely spoken. Written in Latin script.</p>
+                        </div>
+                        <!-- Sorani -->
+                        <div class="flex flex-col gap-1 p-4 bg-stone-50 rounded-lg border-l-4 border-kurd-green hover:shadow-md transition">
+                            <h4 class="font-bold text-sm uppercase">Sorani (Central)</h4>
+                            <p class="text-xs text-stone-500">Dominant in Iraqi Kurdistan. Written in Arabic script.</p>
+                        </div>
+                        <!-- Pehlewani/South -->
+                        <div class="flex flex-col gap-1 p-4 bg-stone-50 rounded-lg border-l-4 border-kurd-red hover:shadow-md transition">
+                            <h4 class="font-bold text-sm uppercase">Pehlewani (South)</h4>
+                            <p class="text-xs text-stone-500">Spoken in Kirmanshah and Ilam regions.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CULTURE & TRADITION -->
+    <section id="culture" class="py-32 bg-bg-kilim bg-pattern-kilim relative">
+        <!-- Overlay -->
+        <div class="absolute inset-0 bg-gradient-to-r from-bg-paper via-bg-paper/95 to-bg-paper/80"></div>
+
+        <div class="max-w-7xl mx-auto px-6 relative z-10">
+            <h2 class="bilingual-title font-serif text-center text-5xl mb-16 reveal">
+                <span class="kurmanji">ÇAND Û HUNER</span>
+                Living Traditions
+            </h2>
+
+            <div class="grid md:grid-cols-3 gap-8">
+                <!-- Card 1: Newroz -->
+                <div class="group reveal cursor-pointer">
+                    <div class="h-96 relative overflow-hidden mask-mountain-1">
+                        <!-- Newroz image (Wikimedia) -->
+                        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Newroz_Kurdistan.jpg" class="w-full h-full object-cover transition duration-700 group-hover:scale-110" alt="Newroz celebrations">
+                        <div class="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition"></div>
+                        <div class="absolute bottom-0 left-0 p-8 text-white">
+                            <h3 class="font-serif text-2xl mb-2">Newroz</h3>
+                            <p class="text-sm opacity-0 group-hover:opacity-100 transition transform translate-y-4 group-hover:translate-y-0">The Kurdish New Year, celebrated on the Spring Equinox with fire jumping and dance.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 2: Dance -->
+                <div class="group reveal cursor-pointer mt-12 md:mt-0">
+                    <div class="h-96 relative overflow-hidden mask-mountain-2">
+                        <!-- Traditional dance image -->
+                        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Traditional_Gorani_male_dancing.jpg" class="w-full h-full object-cover transition duration-700 group-hover:scale-110" alt="Govend dance">
+                        <div class="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition"></div>
+                        <div class="absolute bottom-0 left-0 p-8 text-white">
+                            <h3 class="font-serif text-2xl mb-2">Govend</h3>
+                            <p class="text-sm opacity-0 group-hover:opacity-100 transition transform translate-y-4 group-hover:translate-y-0">Traditional group dances where everyone holds hands, symbolizing unity.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Card 3: Clothing -->
+                <div class="group reveal cursor-pointer">
+                    <div class="h-96 relative overflow-hidden mask-mountain-1">
+                        <!-- Nowruz portrait image (people in traditional clothing) -->
+                        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Nowruz_2017_in_Bisaran%2C_Kurdistan_province.jpg" class="w-full h-full object-cover transition duration-700 group-hover:scale-110" alt="Traditional Kurdish clothing">
+                        <div class="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition"></div>
+                        <div class="absolute bottom-0 left-0 p-8 text-white">
+                            <h3 class="font-serif text-2xl mb-2">Cil û Berg</h3>
+                            <p class="text-sm opacity-0 group-hover:opacity-100 transition transform translate-y-4 group-hover:translate-y-0">Colorful, traditional fabrics tailored uniquely for men (Shal u Shepik) and women.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====== NEW: NAWROZ (Newroz) COUNTDOWN SECTION ====== -->
+    <section id="newroz" class="py-20 bg-white">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="reveal">
+                    <h2 class="bilingual-title font-serif text-4xl mb-4">
+                        <span class="kurmanji">NEWROZ / NOWROZ</span>
+                        Nawroz — The Spring Equinox
+                    </h2>
+                    <p class="text-stone-600 mb-6 leading-relaxed">
+                        Newroz (Nawroz) marks the Kurdish New Year and the arrival of spring. Communities celebrate with fire, song, and communal gatherings — a symbol of renewal, resilience, and hope.
+                    </p>
+                    <p class="text-sm text-stone-500 mb-6">
+                        Countdown to the next Newroz (March 21): months, days, hours, minutes, seconds.
+                    </p>
+
+                    <div class="flex gap-4 flex-wrap">
+                        <div class="countdown-digit text-center" aria-live="polite">
+                            <div id="cd-months" class="text-2xl md:text-3xl">--</div>
+                            <div class="countdown-label">Months</div>
+                        </div>
+                        <div class="countdown-digit text-center" aria-live="polite">
+                            <div id="cd-days" class="text-2xl md:text-3xl">--</div>
+                            <div class="countdown-label">Days</div>
+                        </div>
+                        <div class="countdown-digit text-center" aria-live="polite">
+                            <div id="cd-hours" class="text-2xl md:text-3xl">--</div>
+                            <div class="countdown-label">Hours</div>
+                        </div>
+                        <div class="countdown-digit text-center" aria-live="polite">
+                            <div id="cd-mins" class="text-2xl md:text-3xl">--</div>
+                            <div class="countdown-label">Minutes</div>
+                        </div>
+                        <div class="countdown-digit text-center" aria-live="polite">
+                            <div id="cd-secs" class="text-2xl md:text-3xl">--</div>
+                            <div class="countdown-label">Seconds</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="reveal">
+                    <div class="h-80 mask-mountain-1 overflow-hidden rounded-lg shadow-lg">
+                        <img src="https://commons.wikimedia.org/wiki/Special:FilePath/Newroz_Kurdistan.jpg" alt="Newroz fire" class="w-full h-full object-cover transition-transform hover:scale-105">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ====== NEW: POLITICS OVERVIEW SECTION ====== -->
+    <section id="politics" class="py-20 bg-bg-paper">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="text-center mb-12 reveal">
+                <h2 class="bilingual-title font-serif text-4xl">
+                    <span class="kurmanji">SIYASETÊ KURDISTANÊ</span>
+                    A Brief Overview of Kurdistan's Politics
+                </h2>
+                <p class="text-stone-600 mt-4 max-w-2xl mx-auto">
+                    Kurdish politics are shaped by regional parties, historical rivalries, and the pursuit of autonomy within neighboring states. Below is a concise, non-exhaustive guide to the main actors and structures.
+                </p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-8 reveal">
+                <div class="p-6 rounded-lg bg-white shadow">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-serif text-lg font-bold">Kurdistan Democratic Party (KDP)</h3>
+                        <span class="text-xs uppercase font-bold text-kurd-yellow">North / Erbil</span>
+                    </div>
+                    <p class="text-sm text-stone-600 mt-3">
+                        One of the largest parties in the Kurdistan Region of Iraq, historically dominant in Erbil and led by the Barzani family. Focuses on security, regional governance, and economic development.
+                    </p>
+                </div>
+
+                <div class="p-6 rounded-lg bg-white shadow">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-serif text-lg font-bold">Patriotic Union of Kurdistan (PUK)</h3>
+                        <span class="text-xs uppercase font-bold text-kurd-green">Sulaymaniyah</span>
+                    </div>
+                    <p class="text-sm text-stone-600 mt-3">
+                        Historically influential in the south of the Kurdistan Region (Sulaymaniyah). Played a central role in modern Kurdish politics and governance; has alternated cooperation and competition with the KDP.
+                    </p>
+                </div>
+
+                <div class="p-6 rounded-lg bg-white shadow">
+                    <div class="flex items-center justify-between">
+                        <h3 class="font-serif text-lg font-bold">Gorran & Other Movements</h3>
+                        <span class="text-xs uppercase font-bold text-kurd-red">Reform Voices</span>
+                    </div>
+                    <p class="text-sm text-stone-600 mt-3">
+                        Movements like Gorran (Change) emerged seeking transparency, reforms, and alternatives to long-standing party structures. Civil society and youth movements continue to shape political debate.
+                    </p>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-8 mt-10 reveal">
+                <div class="p-6 rounded-lg bg-white shadow">
+                    <h4 class="font-bold text-sm uppercase text-stone-500 tracking-widest">Governance</h4>
+                    <p class="text-sm text-stone-600 mt-3">
+                        The Kurdistan Regional Government (KRG) administers a degree of autonomy within Iraq, with its own parliament and ministries. Power-sharing between parties is a key feature of the political landscape.
+                    </p>
+                </div>
+                <div class="p-6 rounded-lg bg-white shadow">
+                    <h4 class="font-bold text-sm uppercase text-stone-500 tracking-widest">Regional dynamics</h4>
+                    <p class="text-sm text-stone-600 mt-3">
+                        Kurdish politics are also influenced by relations with Baghdad, neighboring states, and international partners. Security, oil revenue, and internal reform are ongoing priorities.
+                    </p>
+                </div>
+            </div>
+
+            <p class="text-xs text-stone-500 mt-8 italic">Note: This is a short, neutral overview for informational purposes and not a comprehensive political analysis.</p>
+        </div>
+    </section>
+
+    <!-- MODERN KURDISTAN (STATS) - updated copy & matched style -->
+    <section id="modern" class="py-24 bg-[#1a1a1a] text-white">
+        <div class="max-w-7xl mx-auto px-6">
+            <div class="grid md:grid-cols-2 gap-12 items-center">
+                <div class="reveal">
+                    <h2 class="bilingual-title font-serif text-4xl mb-6">
+                        <span class="kurmanji">JIYANA NÛJEN</span>
+                        Modern Kurdistan
+                    </h2>
+                    <p class="text-gray-400 mb-8">
+                        Beyond the history, Kurdistan is a rapidly modernizing region. Cities like Erbil and Sulaymaniyah are bustling hubs of commerce, education, and technology — while rural areas maintain strong cultural traditions.
+                    </p>
+                    <div class="grid grid-cols-2 gap-8">
+                        <div>
+                            <!-- TRACK (explicit contrast) + INNER (explicit color + glow). Kept original % = 65% -->
+                            <div class="h-3 w-full rounded-full mb-2" style="background:#2f2f2f; box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);">
+                                <div class="rounded-full" style="height:12px; width:65%; background:#FECB00; box-shadow: 0 0 8px rgba(254,203,0,0.45);"></div>
+                            </div>
+                            <p class="text-xs uppercase tracking-widest text-gray-200">Youth Population (&lt;30)</p>
+                            <p class="text-xs text-stone-400 mt-1">Majority under 30 — strong demographic momentum.</p>
+                        </div>
+                        <div>
+                            <!-- TRACK + INNER. Kept original % = 82% -->
+                            <div class="h-3 w-full rounded-full mb-2" style="background:#2f2f2f; box-shadow: inset 0 1px 0 rgba(255,255,255,0.02);">
+                                <div class="rounded-full" style="height:12px; width:82%; background:#278E43; box-shadow: 0 0 8px rgba(39,142,67,0.35);"></div>
+                            </div>
+                            <p class="text-xs uppercase tracking-widest text-gray-200">Literacy Rate</p>
+                            <p class="text-xs text-stone-400 mt-1">Improving education access and growing university enrollment.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4 reveal">
+                    <div class="bg-gray-800 p-6 rounded hover:bg-gray-700 transition">
+                        <h4 class="text-kurd-yellow text-xl font-bold mb-2">Tech</h4>
+                        <p class="text-xs text-gray-400">Growing startup ecosystem in Erbil.</p>
+                    </div>
+                    <div class="bg-gray-800 p-6 rounded hover:bg-gray-700 transition">
+                        <h4 class="text-kurd-red text-xl font-bold mb-2">Tourism</h4>
+                        <p class="text-xs text-gray-400">Mountains, festivals and historical routes drawing visitors.</p>
+                    </div>
+                    <div class="bg-gray-800 p-6 rounded hover:bg-gray-700 transition">
+                        <h4 class="text-kurd-green text-xl font-bold mb-2">Education</h4>
+                        <p class="text-xs text-gray-400">Expanding university network and vocational training.</p>
+                    </div>
+                    <div class="bg-gray-800 p-6 rounded hover:bg-gray-700 transition">
+                        <h4 class="text-white text-xl font-bold mb-2">Art</h4>
+                        <p class="text-xs text-gray-400">Cinema and literature festivals showcasing new voices.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="pt-20 pb-10 border-t border-gray-300" style="background:#f9f8f4; color:#1a1a1a;">
+        <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-4 gap-12 mb-16">
+            <div class="col-span-1 md:col-span-2">
+                <h3 class="font-serif text-3xl mb-4">KURDISTAN</h3>
+                <p class="text-stone-700 max-w-sm text-sm">
+                    A digital tribute to the mountains, the people, and the enduring spirit of the Kurdish nation.
+                </p>
+            </div>
+            <div>
+                <h4 class="text-xs font-bold text-kurd-yellow tracking-widest uppercase mb-6">Sections</h4>
+                <ul class="space-y-3 text-sm text-stone-700">
+                    <li><a href="#history" class="hover:text-white transition">Dîrok / History</a></li>
+                    <li><a href="#geography" class="hover:text-white transition">Cografya / Geography</a></li>
+                    <li><a href="#culture" class="hover:text-white transition">Çand / Culture</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-xs font-bold text-kurd-yellow tracking-widest uppercase mb-6">Proverb</h4>
+                <blockquote class="text-stone-700 text-sm italic border-l-2 border-kurd-red pl-4">
+                    "Şêr şêr e, çi jin e çi mêr e."
+                    <span class="block text-xs mt-2 not-italic text-stone-500">A lion is a lion, whether female or male.</span>
+                </blockquote>
+            </div>
+        </div>
+        <div class="text-center text-sm text-rose-800 pt-8 border-t border-gray-200">
+            Designed by Nabaz Sipan Bamerni
+        </div>
+    </footer>
+
+    <script>
+        // --- 1. Loader Animation ---
+        window.addEventListener('load', () => {
+            const loader = document.getElementById('loader');
+            setTimeout(() => {
+                loader.style.opacity = '0';
+                setTimeout(() => { loader.style.display = 'none'; }, 500);
+            }, 1000);
+        });
+
+        // --- 2. Parallax Effect ---
+        window.addEventListener('scroll', () => {
+            const scrollY = window.scrollY;
+            const heroImg = document.getElementById('hero-img');
+            if (heroImg) heroImg.style.transform = `translateY(${scrollY * 0.3}px) scale(1.1)`;
+        });
+
+        // --- 3. Reveal on Scroll (Intersection Observer) ---
+        const observerOptions = {
+            threshold: 0.15,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => observer.observe(el));
+
+        // --- 4. Chart.js Implementation (Language) ---
+        const ctx = document.getElementById('languageChart').getContext('2d');
+        const languageChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Kurmanji (North)', 'Sorani (Central)', 'Pehlewani (South)', 'Zazaki/Gorani'],
+                datasets: [{
+                    label: 'Speakers Estimate',
+                    data: [60, 25, 10, 5],
+                    backgroundColor: [
+                        '#FECB00', // Yellow (Kurmanji)
+                        '#278E43', // Green (Sorani)
+                        '#E30022', // Red (South)
+                        '#d4a373'  // Brown/Tan (Other)
+                    ],
+                    borderWidth: 0,
+                    hoverOffset: 20
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false, /* Fix for container sizing */
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        display: false, // Hiding default legend to use custom HTML legend in section
+                        labels: {
+                            font: { family: 'Inter' },
+                            usePointStyle: true
+                        }
+                    }
+                },
+                cutout: '70%',
+                animation: {
+                    animateScale: true,
+                    animateRotate: true
+                }
+            }
+        });
+
+        // --- 5. Navbar Transition ---
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('shadow-md', 'bg-bg-paper/95');
+                navbar.classList.remove('bg-bg-paper/80');
+            } else {
+                navbar.classList.remove('shadow-md', 'bg-bg-paper/95');
+                navbar.classList.add('bg-bg-paper/80');
+            }
+        });
+
+        // --- 6. Mobile menu toggle (fix for menu button) ---
+        const menuBtn = document.getElementById('menuBtn');
+        const mobileMenu = document.getElementById('mobileMenu');
+
+        function toggleMobileMenu(force) {
+            // force true/false overrides; otherwise toggle
+            let expanded = menuBtn.getAttribute('aria-expanded') === 'true';
+            if (typeof force === 'boolean') {
+                expanded = force;
+            } else {
+                expanded = !expanded;
+            }
+            menuBtn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+            if (expanded) {
+                mobileMenu.classList.remove('hidden');
+            } else {
+                mobileMenu.classList.add('hidden');
+            }
+        }
+
+        menuBtn.addEventListener('click', () => toggleMobileMenu());
+
+        // Close mobile menu if user clicks outside
+        document.addEventListener('click', (e) => {
+            if (!mobileMenu.contains(e.target) && !menuBtn.contains(e.target) && !mobileMenu.classList.contains('hidden')) {
+                toggleMobileMenu(false);
+            }
+        });
+
+        // close mobile menu on link click handled inline (onclick attributes)
+    </script>
+
+    <!-- ====== Added script for Nawroz countdown ====== -->
+    <script>
+        (function(){
+            // Helper: compute next March 21 at midnight local time
+            function getNextNewrozDate(now) {
+                const year = now.getFullYear();
+                // March is month 2 (0-indexed)
+                const candidate = new Date(year, 2, 21, 0, 0, 0, 0);
+                if (candidate > now) return candidate;
+                // otherwise next year
+                return new Date(year + 1, 2, 21, 0, 0, 0, 0);
+            }
+
+            // Compute months difference (full months) then remainder
+            function computeCountdownParts(now, target) {
+                // months between (rounded down by day)
+                let months = (target.getFullYear() - now.getFullYear()) * 12 + (target.getMonth() - now.getMonth());
+                // If the target day-of-month is earlier than now's day, reduce a month
+                if (target.getDate() < now.getDate()) months -= 1;
+
+                if (months < 0) months = 0;
+
+                // Build an intermediate date by adding months to 'now'
+                const intermediate = new Date(now.getFullYear(), now.getMonth() + months, now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds());
+
+                // If intermediate > target (rare edge), move one month back
+                if (intermediate > target) {
+                    months = Math.max(0, months - 1);
+                }
+
+                // Recompute intermediate precisely using corrected months
+                const inter = new Date(now.getFullYear(), now.getMonth() + months, now.getDate(), now.getHours(), now.getMinutes(), now.getSeconds(), now.getMilliseconds());
+
+                // Compute remaining milliseconds after removing months
+                let remainingMs = target - inter;
+                if (remainingMs < 0) remainingMs = 0;
+
+                const days = Math.floor(remainingMs / (1000 * 60 * 60 * 24));
+                remainingMs -= days * (1000 * 60 * 60 * 24);
+                const hours = Math.floor(remainingMs / (1000 * 60 * 60));
+                remainingMs -= hours * (1000 * 60 * 60);
+                const minutes = Math.floor(remainingMs / (1000 * 60));
+                remainingMs -= minutes * (1000 * 60);
+                const seconds = Math.floor(remainingMs / 1000);
+
+                return { months, days, hours, minutes, seconds };
+            }
+
+            function pad(n) { return String(n).padStart(2, '0'); }
+
+            const elMonths = document.getElementById('cd-months');
+            const elDays = document.getElementById('cd-days');
+            const elHours = document.getElementById('cd-hours');
+            const elMins = document.getElementById('cd-mins');
+            const elSecs = document.getElementById('cd-secs');
+
+            function tick() {
+                const now = new Date();
+                const target = getNextNewrozDate(now);
+                const parts = computeCountdownParts(now, target);
+
+                elMonths.textContent = parts.months;
+                elDays.textContent = parts.days;
+                elHours.textContent = pad(parts.hours);
+                elMins.textContent = pad(parts.minutes);
+                elSecs.textContent = pad(parts.seconds);
+
+                // If reached, display a celebratory message in place of digits for a short while
+                if (parts.months === 0 && parts.days === 0 && parts.hours === 0 && parts.minutes === 0 && parts.seconds === 0) {
+                    // Simple celebration effect: swap the months field
+                    elMonths.textContent = 'NOW';
+                    elDays.textContent = '🎉';
+                    elHours.textContent = 'NOW';
+                    elMins.textContent = '🎉';
+                    elSecs.textContent = 'NOW';
+                }
+            }
+
+            // Start immediately and update every second
+            tick();
+            setInterval(tick, 1000);
+        })();
+    </script>
+
+</body>
+</html>
